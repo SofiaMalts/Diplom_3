@@ -2,6 +2,7 @@ package site.nomoreparties.stellarburgers.pom;
 
 import general.Functions;
 import io.qameta.allure.Step;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,8 +11,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertTrue;
 
 public class LoginPageObject {
     private static WebDriver driver;
@@ -32,7 +31,7 @@ public class LoginPageObject {
         listOfAllFields.add(driver.findElement(passwordInput));
         listOfAllFields.add(driver.findElement(enterBtn));
         listOfAllFields.add(driver.findElement(registerLink));
-        new WebDriverWait(driver, 10)
+        new WebDriverWait(driver, 10000)
                 .until(ExpectedConditions.visibilityOfAllElements(listOfAllFields));
 
     }
@@ -45,7 +44,7 @@ public class LoginPageObject {
         listOfAllLocators.add(enterBtn);
         listOfAllLocators.add(registerLink);
         for (By locator : listOfAllLocators) {
-            new WebDriverWait(driver, 10)
+            new WebDriverWait(driver, 10000)
                     .until(ExpectedConditions.presenceOfElementLocated(locator));
         }
     }
@@ -89,7 +88,7 @@ public class LoginPageObject {
     @Step("Проверить, что пользователь был перенаправлен на домашнюю страницу")
     public static void checkRedirect() {
         HomePageObjects objHomePage = new HomePageObjects(driver);
-        assertTrue("Пользователь не был перенаправлен на домашнюю страницу", objHomePage.isHomepageForLoggedInUserExists());
+        Assert.assertTrue("Пользователь не был перенаправлен на домашнюю страницу", objHomePage.isHomepageForLoggedInUserExists());
     }
 
     @Step("Проверить имя и логин авторизованного пользователя")
@@ -100,9 +99,10 @@ public class LoginPageObject {
         objProfilePage.waitUntilProfilePageLoaded();
         objProfilePage.checkNameAndLoginValues(expectedName, expectedLogin.toLowerCase());
     }
-@Step("Проверить, что отображается страница входа в аккаунт")
+
+    @Step("Проверить, что отображается страница входа в аккаунт")
     public static void checkIfLoginPageDisplayed() {
-        assertTrue("Форма для логина не отображается", isLoginFormDisplayed());
+        Assert.assertTrue("Форма для логина не отображается", isLoginFormDisplayed());
     }
 
     @Step("Кликнуть ссылку \"Зарегистрироваться\"")

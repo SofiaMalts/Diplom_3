@@ -12,19 +12,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import site.nomoreparties.stellarburgers.pom.ForgotPasswordPageObject;
-import site.nomoreparties.stellarburgers.pom.HomePageObjects;
-import site.nomoreparties.stellarburgers.pom.LoginPageObject;
-import site.nomoreparties.stellarburgers.pom.RegisterPageObject;
-
-import java.util.concurrent.TimeUnit;
+import site.nomoreparties.stellarburgers.pom.*;
 
 import static helpers.api.methods.PreconditionRequests.createNewUser;
 import static site.nomoreparties.stellarburgers.constants.Browser.CHROME;
 import static site.nomoreparties.stellarburgers.constants.Browser.YANDEX;
-import static site.nomoreparties.stellarburgers.constants.Path.*;
 import static site.nomoreparties.stellarburgers.constants.Url.*;
 
 @RunWith(Parameterized.class)
@@ -48,15 +40,15 @@ public class LoginUserTest {
     }
 
     @Before
-    public void createUserAsPrecondition() {
+    public void runPrecondition() {
         User user = new User(email, password, name);
         createNewUser(user);
+        driver = Functions.runBrowser(browser);
     }
 
     @Test
     @DisplayName("Проверить вход по кнопке \"Войти в аккаунт\"")
     public void testLoginUsingLoginButton() {
-        runBrowser();
         driver.get(STELLARBURGER_HOME_PAGE_URL);
         loginUsingLoginBtn();
     }
@@ -64,7 +56,6 @@ public class LoginUserTest {
     @Test
     @DisplayName("Проверить вход через кнопку \"Личный кабинет\"")
     public void testLoginUsingProfileButton() {
-        runBrowser();
         driver.get(STELLARBURGER_HOME_PAGE_URL);
         loginUsingProfileBtn();
     }
@@ -72,7 +63,6 @@ public class LoginUserTest {
     @Test
     @DisplayName("Проверить вход через страницу регистрации")
     public void testLoginFromRegisterPage() {
-        runBrowser();
         driver.get(STELLARBURGER_REGISTER_PAGE_URL);
         loginFromRegisterPage();
     }
@@ -80,30 +70,8 @@ public class LoginUserTest {
     @Test
     @DisplayName("Проверить вход через страницу восстановления пароля")
     public void testLoginFromForgotPasswordPage() {
-        runBrowser();
         driver.get(STELLARBURGER_FORGOT_PASSWORD_PAGE_URL);
         loginFromForgotPasswordPage();
-    }
-
-    @Step("Запустить браузер")
-    public void runBrowser() {
-        switch (browser) {
-            case CHROME:
-                System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_PATH);
-                driver = new ChromeDriver();
-                break;
-            case YANDEX:
-                System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_FOR_YANDEX_PATH);
-                ChromeOptions options = new ChromeOptions();
-                options.setBinary(YANDEX_BROWSER_PATH);
-                driver = new ChromeDriver(options);
-                break;
-        }
-        driver.manage().timeouts().implicitlyWait(5000,
-                TimeUnit.MILLISECONDS);
-        driver.manage().timeouts().pageLoadTimeout(10000,
-                TimeUnit.MILLISECONDS);
-        driver.manage().window().maximize();
     }
 
     @Step("Войти по кнопке \"Войти в аккаунт\"")
@@ -155,22 +123,17 @@ public class LoginUserTest {
     public void checkLogIn() {
         HomePageObjects objHomePage = new HomePageObjects(driver);
         LoginPageObject objLoginPage = new LoginPageObject(driver);
-        Functions.pauseInMilliSeconds(5000);
+        ProfilePageObjects objProfilePage = new ProfilePageObjects(driver);
         objHomePage.waitUntilHomePageForLoggedInUserLoaded();
         objLoginPage.checkRedirect();
         objHomePage.clickProfileBtn();
-        Functions.pauseInMilliSeconds(5000);
+        objProfilePage.waitUntilProfilePageLoaded();
         objLoginPage.checkLoggedInUser(name, email);
-    }
-
-    @Step("Закрыть браузер")
-    public void closeBrowser() {
-        driver.quit();
     }
 
     @After
     public void tearDown() {
-        closeBrowser();
+        Functions.closeBrowser();
         User user = new User(password, email);
         CleanUpRequests.deleteUser(user);
     }

@@ -1,17 +1,23 @@
 package general;
 
+import io.qameta.allure.Step;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import site.nomoreparties.stellarburgers.constants.Browser;
+import site.nomoreparties.stellarburgers.constants.Path;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class Functions {
     private static WebDriver driver;
@@ -20,26 +26,10 @@ public class Functions {
         this.driver = driver;
     }
 
-
-    public static void navigateToUrl(String url) {
-        driver.get(url);
-    }
-
-
-    // Assert that button is enabled and displayed
-    public static void checkIfButtonReady(By locator) {
-        WebElement element = driver.findElement(locator);
-        String buttonText = element.getText();
-        assertTrue("Кнопка " + buttonText + " не найдена", elementExists(locator));
-        assertTrue("Кнопка " + buttonText + " не отображается", isElementDisplayed(locator));
-        assertTrue("Кнопка " + buttonText + " неактивна", isElementEnabled(locator));
-    }
-
-    // Assert that button is enabled and displayed
     public static void checkIfElementIsReady(By locator) {
-        assertTrue("Элемент c тегом" + driver.findElement(locator).getTagName() + " и классом " + driver.findElement(locator).getAttribute("class") + " не найден", elementExists(locator));
-        assertTrue("Элемент c тегом" + driver.findElement(locator).getTagName() + " и классом " + driver.findElement(locator).getAttribute("class") + " не отображается", isElementDisplayed(locator));
-        assertTrue("Элемент c тегом" + driver.findElement(locator).getTagName() + " и классом " + driver.findElement(locator).getAttribute("class") + " неактивен", isElementEnabled(locator));
+        Assert.assertTrue("Элемент c тегом" + driver.findElement(locator).getTagName() + " и классом " + driver.findElement(locator).getAttribute("class") + " не найден", elementExists(locator));
+        Assert.assertTrue("Элемент c тегом" + driver.findElement(locator).getTagName() + " и классом " + driver.findElement(locator).getAttribute("class") + " не отображается", isElementDisplayed(locator));
+        Assert.assertTrue("Элемент c тегом" + driver.findElement(locator).getTagName() + " и классом " + driver.findElement(locator).getAttribute("class") + " неактивен", isElementEnabled(locator));
     }
 
     // Return boolean value depending on element presence
@@ -84,7 +74,7 @@ public class Functions {
     }
 
     public static void clickElement(WebElement element) {
-        new WebDriverWait(driver, 20)
+        new WebDriverWait(driver, 20000)
                 .until(ExpectedConditions.elementToBeClickable(element));
         element.click();
     }
@@ -93,12 +83,32 @@ public class Functions {
         element.sendKeys(value);
     }
 
-    public static void pauseInMilliSeconds(int timeMs) {
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    @Step("Запустить браузер")
+    public static WebDriver runBrowser(String browser) {
+        // WebDriver driver = null;
+        switch (browser) {
+            case Browser.CHROME:
+                System.setProperty("webdriver.chrome.driver", Path.CHROME_DRIVER_PATH);
+                driver = new ChromeDriver();
+                break;
+            case Browser.YANDEX:
+                System.setProperty("webdriver.chrome.driver", Path.CHROME_DRIVER_FOR_YANDEX_PATH);
+                ChromeOptions options = new ChromeOptions();
+                options.setBinary(Path.YANDEX_BROWSER_PATH);
+                driver = new ChromeDriver(options);
+                break;
         }
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(10000,
+                TimeUnit.MILLISECONDS);
+        driver.manage().timeouts().pageLoadTimeout(20000,
+                TimeUnit.MILLISECONDS);
+        return driver;
+    }
+
+    @Step("Закрыть браузер")
+    public static void closeBrowser() {
+        driver.quit();
     }
 
 

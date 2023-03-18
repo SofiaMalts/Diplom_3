@@ -33,7 +33,7 @@ public class ForgotPasswordPageObject {
         listOfAllFields.add(driver.findElement(resetBtn));
         listOfAllFields.add(driver.findElement(loginLink));
         listOfAllFields.add(driver.findElement(emailField));
-        new WebDriverWait(driver, 10)
+        new WebDriverWait(driver, 10000)
                 .until(ExpectedConditions.visibilityOfAllElements(listOfAllFields));
     }
 
@@ -44,7 +44,7 @@ public class ForgotPasswordPageObject {
         listOfAllLocators.add(loginLink);
         listOfAllLocators.add(emailField);
         for (By locator : listOfAllLocators) {
-            new WebDriverWait(driver, 10)
+            new WebDriverWait(driver, 10000)
                     .until(ExpectedConditions.presenceOfElementLocated(locator));
         }
     }

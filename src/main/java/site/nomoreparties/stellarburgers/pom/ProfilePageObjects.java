@@ -2,6 +2,7 @@ package site.nomoreparties.stellarburgers.pom;
 
 import general.Functions;
 import io.qameta.allure.Step;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,9 +11,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ProfilePageObjects {
     private static WebDriver driver;
@@ -44,7 +42,7 @@ public class ProfilePageObjects {
         listOfAllFields.add(driver.findElement(historyMenuItem));
         listOfAllFields.add(driver.findElement(exitMenuItem));
         listOfAllFields.add(driver.findElement(cancelBtn));
-        new WebDriverWait(driver, 10)
+        new WebDriverWait(driver, 10000)
                 .until(ExpectedConditions.visibilityOfAllElements(listOfAllFields));
 
     }
@@ -60,28 +58,29 @@ public class ProfilePageObjects {
         listOfAllLocators.add(exitMenuItem);
         listOfAllLocators.add(cancelBtn);
         for (By locator : listOfAllLocators) {
-            new WebDriverWait(driver, 10)
+            new WebDriverWait(driver, 10000)
                     .until(ExpectedConditions.presenceOfElementLocated(locator));
         }
     }
 
     public static void checkUserName(String expectedName) {
         Functions func = new Functions(driver);
-        assertTrue("Поле \"Имя\" не отображается на странице", func.isElementDisplayed(nameField));
+        Assert.assertTrue("Поле \"Имя\" не отображается на странице", func.isElementDisplayed(nameField));
         WebElement nameFieldElement = driver.findElement(nameField);
         String actualName = nameFieldElement.getAttribute("value");
-        assertEquals("Имя в лично кабинете не соответствует ожидаемомму. Ожидалось: " + expectedName + "; Фактически: " + actualName + "", expectedName, actualName);
+        Assert.assertEquals("Имя в лично кабинете не соответствует ожидаемомму. Ожидалось: " + expectedName + "; Фактически: " + actualName + "", expectedName, actualName);
     }
 
     public static void checkUserLogin(String expectedLogin) {
         Functions func = new Functions(driver);
-        assertTrue("Поле \"Логин\" не отображается на странице", func.isElementDisplayed(loginField));
+        Assert.assertTrue("Поле \"Логин\" не отображается на странице", func.isElementDisplayed(loginField));
         WebElement nameFieldElement = driver.findElement(loginField);
         String actualLogin = nameFieldElement.getAttribute("value");
-        assertEquals("Логин в личном кабинете не соответствует ожидаемомму. Ожидалось: " + expectedLogin + "; Фактически: " + actualLogin + "", expectedLogin, actualLogin);
+        Assert.assertEquals("Логин в личном кабинете не соответствует ожидаемомму. Ожидалось: " + expectedLogin + "; Фактически: " + actualLogin + "", expectedLogin, actualLogin);
 
     }
-@Step("Проверить имя и логин в личном кабинете соответствуют ожидаемым")
+
+    @Step("Проверить имя и логин в личном кабинете соответствуют ожидаемым")
     public static void checkNameAndLoginValues(String expectedName, String expectedLogin) {
         checkUserName(expectedName);
         checkUserLogin(expectedLogin);
@@ -104,16 +103,16 @@ public class ProfilePageObjects {
     @Step("Проверить, что страница личного кабинета отображается")
     public static void checkIfProfilePageDisplayed() {
         Functions func = new Functions(driver);
-        assertTrue(isProfilePageDisplayed());
+        Assert.assertTrue(isProfilePageDisplayed());
         if (isProfilePageDisplayed()) {
-            assertTrue("Поле \"Имя\" не отображается на странице", func.isElementDisplayed(nameField));
-            assertTrue("Поле \"Логин\" не отображается на странице", func.isElementDisplayed(loginField));
-            assertTrue("Поле \"Пароль\" не отображается на странице", func.isElementDisplayed(passwordField));
-            assertTrue("Кнопка \"Сохранить\" не отображается на странице", func.isElementDisplayed(saveBtn));
-            assertTrue("Кнопка \"Отмена\" не отображается на странице", func.isElementDisplayed(cancelBtn));
-            assertTrue("Пункт меню \"Профиль\" не отображается на странице", func.isElementDisplayed(profileMenuItem));
-            assertTrue("Пункт меню \"История заказов\" не отображается на странице", func.isElementDisplayed(historyMenuItem));
-            assertTrue("Пункт меню \"Выход\" не отображается на странице", func.isElementDisplayed(exitMenuItem));
+            Assert.assertTrue("Поле \"Имя\" не отображается на странице", func.isElementDisplayed(nameField));
+            Assert.assertTrue("Поле \"Логин\" не отображается на странице", func.isElementDisplayed(loginField));
+            Assert.assertTrue("Поле \"Пароль\" не отображается на странице", func.isElementDisplayed(passwordField));
+            Assert.assertTrue("Кнопка \"Сохранить\" не отображается на странице", func.isElementDisplayed(saveBtn));
+            Assert.assertTrue("Кнопка \"Отмена\" не отображается на странице", func.isElementDisplayed(cancelBtn));
+            Assert.assertTrue("Пункт меню \"Профиль\" не отображается на странице", func.isElementDisplayed(profileMenuItem));
+            Assert.assertTrue("Пункт меню \"История заказов\" не отображается на странице", func.isElementDisplayed(historyMenuItem));
+            Assert.assertTrue("Пункт меню \"Выход\" не отображается на странице", func.isElementDisplayed(exitMenuItem));
         }
     }
 

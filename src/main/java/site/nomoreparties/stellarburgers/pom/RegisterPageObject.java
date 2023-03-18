@@ -2,6 +2,7 @@ package site.nomoreparties.stellarburgers.pom;
 
 import general.Functions;
 import io.qameta.allure.Step;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,9 +11,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class RegisterPageObject {
     private static WebDriver driver;
@@ -37,7 +35,7 @@ public class RegisterPageObject {
         listOfAllFields.add(driver.findElement(passwordInput));
         listOfAllFields.add(driver.findElement(submitBtn));
         listOfAllFields.add(driver.findElement(loginLink));
-        new WebDriverWait(driver, 10)
+        new WebDriverWait(driver, 10000)
                 .until(ExpectedConditions.visibilityOfAllElements(listOfAllFields));
 
     }
@@ -51,7 +49,7 @@ public class RegisterPageObject {
         listOfAllLocators.add(submitBtn);
         listOfAllLocators.add(loginLink);
         for (By locator : listOfAllLocators) {
-            new WebDriverWait(driver, 10)
+            new WebDriverWait(driver, 10000)
                     .until(ExpectedConditions.presenceOfElementLocated(locator));
         }
     }
@@ -112,21 +110,22 @@ public class RegisterPageObject {
             return false;
         }
     }
-@Step("Проверить, что при корректной регистрации пользователь направляется на страницу входа в аккаунт, при некорректной регистрации система показывает ошибку и оставляет пользователя на странице регистрации")
+
+    @Step("Проверить, что при корректной регистрации пользователь направляется на страницу входа в аккаунт, при некорректной регистрации система показывает ошибку и оставляет пользователя на странице регистрации")
     public void checkRegistrationResult(String expectedResult) {
         LoginPageObject objLoginPage = new LoginPageObject(driver);
         Functions func = new Functions(driver);
         switch (expectedResult) {
             case "success":
-                assertFalse("Система не позволяет войти", isRegistrationFailed());
+                Assert.assertFalse("Система не позволяет войти", isRegistrationFailed());
                 objLoginPage.waitUntilLoginPageLoaded();
-                assertTrue("Пользователь не был перенаправлен на страницу входа", objLoginPage.isLoginFormDisplayed());
+                Assert.assertTrue("Пользователь не был перенаправлен на страницу входа", objLoginPage.isLoginFormDisplayed());
                 break;
             case "failure":
-                assertTrue("Форма для регистрации не отображается", isRegisterFormDisplayed());
+                Assert.assertTrue("Форма для регистрации не отображается", isRegisterFormDisplayed());
                 if (!isRegistrationFailed()) {
-                    assertTrue("Поле \"Пароль\" не подсвечено красным", func.isElementDisplayed(errorPasswordField));
-                    assertTrue("Не отображается сообщение об ошибке", func.isElementDisplayed(errorPasswordTxt));
+                    Assert.assertTrue("Поле \"Пароль\" не подсвечено красным", func.isElementDisplayed(errorPasswordField));
+                    Assert.assertTrue("Не отображается сообщение об ошибке", func.isElementDisplayed(errorPasswordTxt));
                 }
                 break;
         }

@@ -2,6 +2,7 @@ package site.nomoreparties.stellarburgers.pom;
 
 import general.Functions;
 import io.qameta.allure.Step;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
@@ -11,11 +12,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class HomePageObjects {
     private static WebDriver driver;
@@ -27,16 +26,14 @@ public class HomePageObjects {
     private static By constructorBtn = By.xpath(".//p[text() = 'Конструктор']");
     private static By burgerLogo = By.xpath(".//div[@class = 'AppHeader_header__logo__2D0X2']/a");
     //Constructor elements
-    private static By bunsButton = By.xpath(".//span[text() = 'Булки']");
     private static By bunsButtonParentDiv = By.xpath(".//span[text() = 'Булки']/parent::div");
-    private static By saucesButton = By.xpath(".//span[text() = 'Соусы']");
     private static By saucesButtonParentDiv = By.xpath(".//span[text() = 'Соусы']/parent::div");
-    private static By fillingButton = By.xpath(".//span[text() = 'Начинки']");
     private static By fillingButtonParentDiv = By.xpath(".//span[text() = 'Начинки']/parent::div");
     private static By bunsTitle = By.xpath(".//h2[text() = 'Булки']");
     private static By saucesTitle = By.xpath(".//h2[text() = 'Соусы']");
     private static By fillingTitle = By.xpath(".//h2[text() = 'Начинки']");
-    private String selectedConstructorDivClass = "tab_tab__1SPyG tab_tab_type_current__2BEPc pt-4 pr-10 pb-4 pl-10 noselect";
+    private static String selectedConstructorDivClass = "tab_tab__1SPyG tab_tab_type_current__2BEPc pt-4 pr-10 pb-4 pl-10 noselect";
+    private static String selectedSectionBoxShadow = "rgb(76, 76, 255) 0px -2px 0px 0px inset";
 
     public HomePageObjects(WebDriver driver) {
         this.driver = driver;
@@ -47,7 +44,7 @@ public class HomePageObjects {
         listOfAllFields.add(driver.findElement(profileBtn));
         listOfAllFields.add(driver.findElement(createOrder));
         listOfAllFields.add(driver.findElement(buildYourBurger));
-        new WebDriverWait(driver, 10)
+        new WebDriverWait(driver, 10000)
                 .until(ExpectedConditions.visibilityOfAllElements(listOfAllFields));
 
     }
@@ -58,7 +55,7 @@ public class HomePageObjects {
         listOfAllLocators.add(createOrder);
         listOfAllLocators.add(buildYourBurger);
         for (By locator : listOfAllLocators) {
-            new WebDriverWait(driver, 10)
+            new WebDriverWait(driver, 10000)
                     .until(ExpectedConditions.presenceOfElementLocated(locator));
         }
     }
@@ -95,24 +92,56 @@ public class HomePageObjects {
         }
     }
 
-    public static boolean isHomepageDisplayed() {
-        Functions func = new Functions(driver);
-        waitUntilHomePageForLoggedInUserLoaded();
-        if (func.isElementDisplayed(profileBtn) && func.isElementDisplayed(loginBtn) && func.isElementDisplayed(buildYourBurger)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     @Step("Проверить, что домашняя страница отображается")
     public static void checkIfHomePageDisplayedForLoggedInUser() {
         Functions func = new Functions(driver);
-        assertTrue(isHomepageForLoggedInUserDisplayed());
+        Assert.assertTrue(isHomepageForLoggedInUserDisplayed());
         if (isHomepageForLoggedInUserDisplayed()) {
-            assertTrue("Кнопка \"Личный Кабинет\" не отображается на странице", func.isElementDisplayed(profileBtn));
-            assertTrue("Кнопка \"Оформить заказ\" не отображается на странице", func.isElementDisplayed(createOrder));
-            assertTrue("Заголовок конструктора \"Соберите бургер\" не отображается на странице", func.isElementDisplayed(buildYourBurger));
+            Assert.assertTrue("Кнопка \"Личный Кабинет\" не отображается на странице", func.isElementDisplayed(profileBtn));
+            Assert.assertTrue("Кнопка \"Оформить заказ\" не отображается на странице", func.isElementDisplayed(createOrder));
+            Assert.assertTrue("Заголовок конструктора \"Соберите бургер\" не отображается на странице", func.isElementDisplayed(buildYourBurger));
+        }
+    }
+
+    @Step("Нажать на раздел \"Булки\"")
+    public static void clickBunsBtn() {
+        WebElement button = driver.findElement(bunsButtonParentDiv);
+        Functions func = new Functions(driver);
+        func.clickElement(button);
+    }
+
+    @Step("Нажать на раздел \"Начинки\"")
+    public static void clickFillingBtn() {
+        WebElement button = driver.findElement(fillingButtonParentDiv);
+        Functions func = new Functions(driver);
+        func.clickElement(button);
+    }
+
+    public static String getSelectedSectionName() {
+        String selectedSectionName = "";
+        WebElement selected = driver.findElement(By.xpath(".//div[@class = '" + selectedConstructorDivClass + "']"));
+        String actualBoxShadow = selected.getCssValue("box-shadow");
+        String expectedBoxShadow = selectedSectionBoxShadow;
+        if (actualBoxShadow.contains(expectedBoxShadow)) {
+            selectedSectionName = selected.getText();
+        }
+        return selectedSectionName;
+    }
+
+    @Step("Проверить, что секция раздела конструктора выбрана")
+    public static void checkIfSectionIsSelected(String sectionName) {
+        String actualSelectedSectionName = getSelectedSectionName();
+        String expectedSelectedSectionName = sectionName;
+        int counter = 0;
+        int maxWaitCounter = 100;
+        if (!actualSelectedSectionName.equals(expectedSelectedSectionName)) {
+            while ((!actualSelectedSectionName.equals(expectedSelectedSectionName)) && counter < maxWaitCounter) {
+                actualSelectedSectionName = getSelectedSectionName();
+                counter++;
+            }
+            if (counter == maxWaitCounter) {
+                assertThat("Ожидаемая секция раздела конструктора не выбрана", actualSelectedSectionName, is(expectedSelectedSectionName));
+            }
         }
     }
 
@@ -161,30 +190,15 @@ public class HomePageObjects {
         WebElement button = driver.findElement(burgerLogo);
         Functions func = new Functions(driver);
         func.clickElement(button);
-    }
 
-    @Step("Нажать на раздел \"Булки\"")
-    public void clickBunsBtn() {
-        WebElement button = driver.findElement(bunsButton);
-        Functions func = new Functions(driver);
-        func.clickElement(button);
-        func.pauseInMilliSeconds(2000);
     }
 
     @Step("Нажать на раздел \"Соусы\"")
     public void clickSaucesBtn() {
-        WebElement button = driver.findElement(saucesButton);
+        WebElement button = driver.findElement(saucesButtonParentDiv);
+        WebElement title = driver.findElement(saucesTitle);
         Functions func = new Functions(driver);
         func.clickElement(button);
-        func.pauseInMilliSeconds(2000);
-    }
-
-    @Step("Нажать на раздел \"Начинки\"")
-    public void clickFillingBtn() {
-        WebElement button = driver.findElement(fillingButton);
-        Functions func = new Functions(driver);
-        func.clickElement(button);
-        func.pauseInMilliSeconds(2000);
     }
 
     public int getElementYPosition(By locator) {
@@ -211,52 +225,5 @@ public class HomePageObjects {
         int actualPosition = getElementYPosition(fillingTitle);
         assertThat(actualPosition, is(expectedPosition));
     }
-
-    public boolean isBunsSelected() {
-        WebElement bunsParentElement = driver.findElement(bunsButtonParentDiv);
-        String divClass = bunsParentElement.getAttribute("class");
-        if (Objects.equals(divClass, selectedConstructorDivClass)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isSaucesSelected() {
-        WebElement bunsParentElement = driver.findElement(saucesButtonParentDiv);
-        String divClass = bunsParentElement.getAttribute("class");
-        if (Objects.equals(divClass, selectedConstructorDivClass)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isFillingSelected() {
-        WebElement bunsParentElement = driver.findElement(fillingButtonParentDiv);
-        String divClass = bunsParentElement.getAttribute("class");
-        if (Objects.equals(divClass, selectedConstructorDivClass)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Step("Проверить, что заголовок раздела конструктора выбирается при клике на него")
-    public void checkIfClickedItemIsSelected(String item) {
-        switch (item) {
-            case "Булки":
-                assertThat(isBunsSelected(), is(true));
-                break;
-            case "Соусы":
-                assertThat(isSaucesSelected(), is(true));
-                break;
-            case "Начинки":
-                assertThat(isFillingSelected(), is(true));
-                break;
-        }
-
-    }
-
 
 }
