@@ -133,7 +133,7 @@ public class HomePageObjects {
         String actualSelectedSectionName = getSelectedSectionName();
         String expectedSelectedSectionName = sectionName;
         int counter = 0;
-        int maxWaitCounter = 100;
+        int maxWaitCounter = 500;
         if (!actualSelectedSectionName.equals(expectedSelectedSectionName)) {
             while ((!actualSelectedSectionName.equals(expectedSelectedSectionName)) && counter < maxWaitCounter) {
                 actualSelectedSectionName = getSelectedSectionName();
@@ -210,20 +210,32 @@ public class HomePageObjects {
 
     @Step("Проверить, что раздел \"Булки\" находится на ожидаемом месте")
     public void checkBunsPosition(int expectedPosition) {
-        int actualPosition = getElementYPosition(bunsTitle);
-        assertThat(actualPosition, is(expectedPosition));
+        checkElementPosition(bunsTitle, expectedPosition);
     }
 
     @Step("Проверить, что раздел \"Соусы\" находится на ожидаемом месте")
     public void checkSaucesPosition(int expectedPosition) {
-        int actualPosition = getElementYPosition(saucesTitle);
-        assertThat(actualPosition, is(expectedPosition));
+        checkElementPosition(saucesTitle, expectedPosition);
     }
 
     @Step("Проверить, что раздел \"Начинки\" находится на ожидаемом месте")
     public void checkFillingPosition(int expectedPosition) {
-        int actualPosition = getElementYPosition(fillingTitle);
-        assertThat(actualPosition, is(expectedPosition));
+        checkElementPosition(fillingTitle, expectedPosition);
+    }
+
+    public void checkElementPosition(By locator, int expectedPosition) {
+        int actualPosition = getElementYPosition(locator);
+        int counter = 0;
+        int maxWaitCounter = 500;
+        if (!(actualPosition == expectedPosition)) {
+            while (!(actualPosition == expectedPosition) && counter < maxWaitCounter) {
+                actualPosition = getElementYPosition(locator);
+                counter++;
+            }
+            if (counter == maxWaitCounter) {
+                assertThat("Заголовок секции не находится на ожидаемом месте", actualPosition, is(expectedPosition));
+            }
+        }
     }
 
 }
